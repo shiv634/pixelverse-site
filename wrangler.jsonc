@@ -1,0 +1,11 @@
+{
+  // Cloudflare Worker that serves the static site in ./site (Workers Builds deploys this on every push to main).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pixelverse-site",
+  "compatibility_date": "2026-11-09",
+  "assets": {
+    "directory": "./site",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  }
+}

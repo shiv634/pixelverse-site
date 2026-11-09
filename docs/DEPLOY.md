@@ -1,26 +1,20 @@
-# One-time setup: publish from GitHub
+# Publishing: GitHub -> Cloudflare
 
-## 1. Create the GitHub repository
-1. On github.com click New repository. Name: `pixelverse-site`. Private is fine. Leave it empty (no README).
-2. In Claude, make sure GitHub is connected (Settings, Connectors) and the Claude GitHub app has access to this repository.
-3. Tell Claude the repository name. Claude uploads the site files.
+The site is a Cloudflare Worker (static assets) named `pixelverse-site`, built from this repository by Cloudflare Workers Builds.
+`wrangler.jsonc` at the repository root tells it to publish the `site/` folder. There is no build command.
 
-## 2. Connect Cloudflare Pages to the repository
-Cloudflare can't turn your current "pixelverse" upload-based project into a Git one, so you create a new project.
-1. Cloudflare dashboard, Workers & Pages, Create, Pages, Connect to Git. Pick `pixelverse-site`.
-2. Settings: Production branch `main`. Framework preset: None. Build command: leave empty. Build output directory: `site`.
-3. Save and deploy. You get an address like `pixelverse-site.pages.dev`. Check that it looks right.
+## Cloudflare settings (Worker > Settings > Builds)
+- Production branch: `main`. Build command: empty. Deploy command: `npx wrangler deploy`.
+- Turn on builds for non-production branches. Pushes to `draft` then get their own preview address.
 
-## 3. Point the domain at the new project
-1. In the new project, open Custom domains and add `www.pixelversefx.com`.
-2. In your DNS (Wix, where the domain's DNS is managed), change the `www` CNAME to the new project's `.pages.dev` address.
-3. Once the site loads from the new project, you can delete the old "pixelverse" upload project.
+## Custom domain
+Workers custom domains only work for a domain that is a zone on the same Cloudflare account, so DNS must move to Cloudflare:
+1. Add `pixelversefx.com` to Cloudflare (Add a domain). Check the imported DNS records against Wix's.
+2. At the domain registrar (Wix), change the nameservers to the two Cloudflare gives you.
+3. Delete the old `www` CNAME record in Cloudflare DNS (a custom domain can't be added over an existing CNAME).
+4. Worker > Settings > Domains & Routes > Add > Custom domain: add `www.pixelversefx.com`, then `pixelversefx.com`.
 
-## 4. Preview branch
-In the project's Settings, Builds, make sure branch previews are on. Every push to the `draft` branch then gets its own preview address.
-
-## How day-to-day changes work
-1. You ask Claude for a change.
-2. Claude pushes it to `draft` and sends you the preview address.
-3. You say "publish". Claude merges `draft` into `main`, and Cloudflare publishes it within a minute or two.
-4. To undo, tell Claude to revert, or use Cloudflare's Deployments tab, Rollback.
+## Day-to-day
+1. Ask Claude for a change. Claude pushes it to `draft` and sends the preview address.
+2. Say "publish". Claude merges `draft` into `main`, and Cloudflare publishes it within a minute or two.
+3. To undo: ask Claude to revert, or use Rollback under the Worker's Deployments.
