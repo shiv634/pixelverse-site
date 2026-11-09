@@ -154,9 +154,66 @@ volsplat = f"""<section class="page-top product-top">
   </div>
 </section>"""
 
+SOON_FAQ = [q for q in FAQ if q[0] not in ("Is there a free trial?", "Can I get a refund?", "Who handles payment?")]
+soon_faq_html = "\n".join(f'      <details><summary>{q}</summary><p>{a}</p></details>' for q, a in SOON_FAQ)
+
+volsplat_soon = f"""<section class="page-top product-top">
+  <div class="wrap">
+    <div class="section-head">
+      <h1 class="display">Volsplat</h1>
+      <p class="lede">New software from Pixelverse. Details and downloads arrive at launch.</p>
+      <div class="actions">
+        <a class="btn solid" href="/contact/?need=volsplat">{RGB}Get notified at launch</a>
+        <a class="btn" href="/contact/?need=volsplat">{RGB}Contact the studio</a>
+      </div>
+      <p class="product-meta"><span>Coming soon</span><span>By Pixelverse, Chennai</span></p>
+    </div>
+    <div class="shot"><p>Preview coming soon</p></div>
+  </div>
+</section>
+
+<section class="section tight" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="display">What it does</h2>
+      <p class="lede muted">Features, system requirements and downloads will be published here when Volsplat launches.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tight" id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="display">Planned licences</h2>
+      <p class="lede muted">One licence covers Volsplat. Prices are in US dollars and may change before launch.</p>
+    </div>
+    <div class="plans">
+{chr(10).join(plan_card(p) for p in PLANS)}
+    </div>
+  </div>
+</section>
+
+<section class="section tight" id="faq">
+  <div class="wrap split">
+    <div class="lead"><div class="lead-inner"><h2 class="display">Questions</h2>
+      <p class="lede muted">Not here? <a href="/contact/?need=volsplat" style="border-bottom:1px solid var(--line-strong)">Ask the studio</a>.</p></div></div>
+    <div class="list faq">
+{soon_faq_html}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap cta-band">
+    <h2 class="display">Want to know when Volsplat launches?</h2>
+    <p class="lede muted">Send us a message and we’ll write to you when it is ready.</p>
+    <a class="btn solid" href="/contact/?need=volsplat">{RGB}Get notified at launch</a>
+  </div>
+</section>"""
+
 page("/volsplat/", "Volsplat – Software by Pixelverse",
-     "Volsplat by Pixelverse: features, requirements and licences (Indie, Perpetual, Commercial).",
-     "software", volsplat, ["/assets/js/site.js"])
+     "Volsplat by Pixelverse: coming soon." if not SHOP_FULL else "Volsplat by Pixelverse: features, requirements and licences (Indie, Perpetual, Commercial).",
+     "software", volsplat if SHOP_FULL else volsplat_soon, ["/assets/js/site.js"])
 
 # ───────────── legal pages for the shop ─────────────
 def legal_page(path, title, desc, h1, body):
@@ -167,6 +224,8 @@ def legal_page(path, title, desc, h1, body):
   </div></div></section>"""
     page(path, title, desc, "", out, ["/assets/js/site.js"])
 
+if not SHOP_FULL:
+    legal_page = lambda *a, **k: None   # legal pages are published only at full launch
 MOR = SHOP["mor"]
 WHO = "Pixelverse, C4, Purva Windmere, Pallikaranai, Chennai 600100, India"
 
@@ -239,8 +298,9 @@ legal_page("/legal/refund-policy/", "Refund policy – Pixelverse",
 priv2 = privacy.replace("""    <h2>Videos and fonts</h2>""", f"""    <h2>Software purchases and licences</h2>
     <p>If you buy Volsplat, the purchase is handled by {MOR}, our merchant of record. They collect your payment details and tell us your name, email address, country, order details and licence key. We never see your card number. {MOR}’s privacy policy covers what they do with your data. When Volsplat starts, it sends your licence key, an anonymised identifier for your computer, and the app version to our licence service so we can confirm your plan and check for updates. We use this only to run licences and support.</p>
     <h2>Videos and fonts</h2>""").replace("Last updated 4 November 2026", f"Last updated {SHOP['updated']}")
-page("/privacy-policy/", "Privacy policy – Pixelverse", "How Pixelverse handles information on this website.", "", priv2, ["/assets/js/site.js"])
+if SHOP_FULL:
+    page("/privacy-policy/", "Privacy policy – Pixelverse", "How Pixelverse handles information on this website.", "", priv2, ["/assets/js/site.js"])
 
-if PLACEHOLDERS:
+if PLACEHOLDERS and SHOP_FULL:
     print(f"\n!! {len(PLACEHOLDERS)} Volsplat placeholders still on /volsplat/ (fill before going live):")
     for t in dict.fromkeys(PLACEHOLDERS): print("   -", t)

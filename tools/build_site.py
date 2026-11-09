@@ -4,7 +4,11 @@ import os, json, html
 
 ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "site")
 # The Volsplat shop (product page, legal pages, Software menu link) stays hidden until SHOP_LIVE=1.
-SHOP_LIVE = os.environ.get("SHOP_LIVE") == "1"
+# SHOP_LIVE=soon: Volsplat "coming soon" page, Software link and home promo only (no legal pages, no prices committed to checkout).
+# SHOP_LIVE=1: the full shop (adds the legal pages). SHOP_LIVE unset: shop hidden.
+SHOP_MODE = os.environ.get("SHOP_LIVE", "0")
+SHOP_LIVE = SHOP_MODE in ("1", "soon")
+SHOP_FULL = SHOP_MODE == "1"
 ORIGIN = "https://www.pixelversefx.com"
 VER = "4"  # bump on every deploy to bust cached CSS/JS
 EMAIL = "pixelverse.va@gmail.com"
@@ -18,7 +22,7 @@ RGB = '<span class="rgb" aria-hidden="true"><i></i><i></i><i></i></span>'
 # pieces that only appear when the shop is switched on
 SOFT_FOOT = '<a href="/volsplat/">Software</a>' if SHOP_LIVE else ""
 LEGAL_FOOT = ('<a href="/legal/terms-of-sale/">Terms of sale</a><a href="/legal/refund-policy/">Refund policy</a>'
-              '<a href="/legal/volsplat-eula/">Volsplat licence</a>') if SHOP_LIVE else ""
+              '<a href="/legal/volsplat-eula/">Volsplat licence</a>') if SHOP_FULL else ""
 VOL_OPT = "<option>Volsplat (software)</option>" if SHOP_LIVE else ""
 SOFT_PROMO = f'''<section class="section tight" id="software">
   <div class="wrap promo">
@@ -430,7 +434,8 @@ open(os.path.join(ROOT, "assets/img/favicon.svg"), "w").write(
  '<rect x="15" y="12" width="12" height="12" fill="#4073ff" style="mix-blend-mode:screen"/></svg>')
 open(os.path.join(ROOT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {ORIGIN}/sitemap.xml\n")
 urls = ["/", "/portfolio/", "/about/", "/contact/", "/privacy-policy/", "/accessibility-statement/"]
-if SHOP_LIVE: urls[4:4] = ["/volsplat/", "/legal/volsplat-eula/", "/legal/terms-of-sale/", "/legal/refund-policy/"]
+if SHOP_LIVE: urls[4:4] = ["/volsplat/"]
+if SHOP_FULL: urls[5:5] = ["/legal/volsplat-eula/", "/legal/terms-of-sale/", "/legal/refund-policy/"]
 open(os.path.join(ROOT, "sitemap.xml"), "w").write(
  '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
  "".join(f"  <url><loc>{ORIGIN}{u}</loc></url>\n" for u in urls) + "</urlset>\n")
