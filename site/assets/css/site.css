@@ -332,3 +332,25 @@ form.pv{display:grid;gap:22px}
 .faq summary:focus-visible{outline:2px solid var(--phosphor);outline-offset:2px}
 .faq details p a{border-bottom:1px solid var(--line-strong)}
 mark.ph{background:none;color:var(--phosphor);outline:1px dashed var(--line-strong);outline-offset:2px;border-radius:2px;padding:0 3px}
+/* Volsplat preview image + documentation page */
+.shot-img{padding:0;display:block;background:#05060b;overflow:hidden;margin:0}
+.shot-img img{display:block;width:100%;height:auto}
+.shot-img figcaption{padding:10px 16px;font-size:13px;color:var(--faint);border-top:1px solid var(--line)}
+.docs-layout{display:grid;grid-template-columns:220px minmax(0,72ch);gap:48px;margin-top:56px;align-items:start}
+.docs-toc{position:sticky;top:96px}
+.docs-toc ol{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px;font-size:14px}
+.docs-toc a{color:var(--dim)}.docs-toc a:hover{color:var(--fg,#fff)}
+.docs section{padding-top:8px}
+.docs h2{font-family:var(--display);font-weight:700;font-size:26px;margin:2em 0 .5em;line-height:1.2;scroll-margin-top:90px}
+.docs section:first-child h2{margin-top:0}
+.docs h3{font-size:17px;margin:1.6em 0 .4em}
+.docs p,.docs li,.docs td,.docs dd{color:var(--dim)}
+.docs p{margin-top:.8em}.docs ul,.docs ol{padding-left:1.3em;margin-top:.6em}.docs li+li{margin-top:.4em}
+.docs strong,.docs em{color:var(--fg,#fff)}
+.docs a{border-bottom:1px solid var(--line-strong)}
+.docs code,.docs kbd{font-family:ui-monospace,Consolas,monospace;font-size:.9em;padding:1px 5px;border:1px solid var(--line);border-radius:3px;color:var(--fg,#fff)}
+.docs table{width:100%;border-collapse:collapse;margin:1em 0;font-size:15px;display:block;overflow-x:auto}
+.docs th,.docs td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.docs th{color:var(--faint);font-weight:500;white-space:nowrap}
+@media (max-width:900px){.docs-layout{grid-template-columns:minmax(0,1fr);gap:24px}.docs-toc{position:static}}
+.docs-toc a{border-bottom:0}.docs{min-width:0}.docs pre,.docs code{overflow-wrap:anywhere}

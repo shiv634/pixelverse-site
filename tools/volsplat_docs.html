@@ -1,0 +1,232 @@
+<section id="overview">
+<h2>What Volsplat does</h2>
+<p>Volsplat turns real or computer-made views of a subject into a <strong>Gaussian splat</strong>: a 3D scene made of many soft, semi-transparent 3D blobs (Gaussians) that you can orbit and look at from any angle. It runs on Windows, trains on your NVIDIA graphics card, and lets you clean the result up and take it to other tools, including Unreal Engine.</p>
+<p>You can start from:</p>
+<ul>
+<li>photos from a phone or camera,</li>
+<li>video files (mp4, mov, avi and similar),</li>
+<li>one or more live webcams,</li>
+<li>renders from a 3D program such as Blender, Houdini or Maya, where the cameras are already known,</li>
+<li>a 3D model (obj, stl, ply or glb),</li>
+<li>a single picture,</li>
+<li>or a splat you already have (a standard <code>.ply</code> file).</li>
+</ul>
+<p>This guide covers version {VERSION}, the Windows beta. The beta is time-limited and needs no licence key. See <a href="#beta">Beta, licences and updates</a>.</p>
+</section>
+
+<section id="requirements">
+<h2>Before you start</h2>
+<dl class="spec">
+<div><dt>Computer</dt><dd>Windows, 64-bit. Windows can install WSL2 (Ubuntu) for you during setup, and Windows may ask you to restart once.</dd></div>
+<div><dt>Graphics card</dt><dd>An NVIDIA card. Training runs on CUDA inside WSL2. Volsplat is developed and timed on an RTX 5070 Ti with 16 GB, and the highest quality level needs most of a 16 GB card. Minimum requirements for smaller cards have not been measured yet.</dd></div>
+<div><dt>Disk space</dt><dd>Plan for tens of gigabytes: the 3D engine (CUDA, PyTorch), the optional AI models, and your scans. Single image input alone needs about 15 GB free inside WSL. A highest-quality scan can be about 700 MB.</dd></div>
+<div><dt>Internet</dt><dd>Needed for the one-time setup downloads. After that, scanning and training work offline. Activating a licence and checking for updates need the internet.</dd></div>
+</dl>
+</section>
+
+<section id="install">
+<h2>Install and first run</h2>
+<ol>
+<li>Download the installer from the <a href="/volsplat/#download">Volsplat page</a> and run it. The beta installer is not code-signed yet, so Windows may show a SmartScreen warning: choose <em>More info</em>, then <em>Run anyway</em>.</li>
+<li>Start <strong>VolSpatial SplatScan</strong>. On the first run it asks whether you want to send an anonymous usage note. Nothing is sent before you answer, and nothing is sent if you say no. You can change this later in <em>Preferences</em> or <em>Help &gt; Privacy and your data</em>.</li>
+<li>Your workspace is the folder <code>C:\Users\&lt;you&gt;\VolSpatial SplatScan</code>. It holds your scans (<code>captures</code>), your preferences, the log, and a copy of the engine files that the GPU side runs. <em>File &gt; Open my SplatScan folder</em> opens it.</li>
+</ol>
+</section>
+
+<section id="setup">
+<h2>Set up the 3D engine (once)</h2>
+<p>The Windows app captures, shows and edits. The heavy work, solving camera positions and training, runs inside WSL2 Ubuntu. Run the setup from <em>Help &gt; Set up / repair the 3D engine</em>, or double-click the matching <code>.bat</code> file in your workspace folder.</p>
+<table>
+<thead><tr><th>Setup</th><th>What it installs</th><th>Time</th><th>Needed for</th></tr></thead>
+<tbody>
+<tr><td><code>SETUP_GPU.bat</code></td><td>WSL Ubuntu if missing, the CUDA toolkit, PyTorch, gsplat and helper packages</td><td>15 to 30 minutes</td><td>Everything that trains. Do this first.</td></tr>
+<tr><td><code>SETUP_AI.bat</code></td><td>The MapAnything model (Apache-2.0) for AI camera positions</td><td>10 to 20 minutes</td><td>“AI guess” camera positions and near-live splats</td></tr>
+<tr><td><code>SETUP_SINGLE_IMAGE.bat</code></td><td>Microsoft TRELLIS (MIT licence)</td><td>20 to 40 minutes, up to 90 more if a library must be built</td><td>Single image input</td></tr>
+<tr><td><code>SETUP_SPEED.bat</code></td><td>Fused SSIM training speed-up</td><td>A few minutes</td><td>Optional. If it says “did not build”, nothing is broken.</td></tr>
+</tbody>
+</table>
+<p>If WSL is not installed, the GPU setup installs Ubuntu and Windows may ask to restart. After the restart, Ubuntu asks you to create a username and password; then run the setup again. Leave the setup window open until it says it has finished.</p>
+</section>
+
+<section id="workflow">
+<h2>The basic workflow</h2>
+<ol>
+<li><strong>Create a project</strong> (<kbd>Ctrl</kbd>+<kbd>N</kbd>).</li>
+<li><strong>Bring in your pictures</strong> with the Import and Capture panels.</li>
+<li>In the <strong>Process</strong> tab, pick how the cameras are found, choose a quality level, and press Process.</li>
+<li><strong>Look at the result</strong> in the 3D view and level the scene if needed.</li>
+<li><strong>Tidy it</strong>: crop, remove floaters, delete unwanted splats.</li>
+<li><strong>Export</strong> a <code>.ply</code> or send it to Unreal Engine.</li>
+</ol>
+<h3>The window</h3>
+<p>The left side has the <em>Project</em>, <em>Recent</em>, <em>Import</em>, <em>Cameras</em> and <em>Capture</em> panels. The right side has the <em>Scene</em>, <em>Process</em>, <em>Preferences</em> and <em>Log</em> tabs. The 3D view is in the middle. Panels can be docked left or right, floated as their own window, snapped to edges or hidden. <em>View &gt; Reset layout</em> puts everything back.</p>
+</section>
+
+<section id="input">
+<h2>Bringing in pictures</h2>
+<h3>Photos</h3>
+<p><em>File &gt; Import photos</em> (<kbd>Ctrl</kbd>+<kbd>I</kbd>) takes a folder of photos from a phone, DSLR or similar.</p>
+<h3>Video files</h3>
+<p><em>Import video file(s)</em> reads mp4, mov, avi and similar and uses frames from them. <em>Use video file(s) as cameras</em> treats several videos as several cameras. For handheld or phone video, keep <em>rolling-shutter compensation</em> on in the training settings.</p>
+<h3>Webcams</h3>
+<p>Press <em>Detect</em> to find webcams and see a preview. <em>Capture round</em> (<kbd>Space</kbd>) takes one picture from every camera; <em>Auto every</em> repeats it. Each physical camera gets its own folder, so one webcam keeps one set of lens settings while you move it around the scene.</p>
+<h3>A COLMAP model you already have</h3>
+<p><em>Import sparse model (COLMAP sparse/0)</em> brings in cameras solved by COLMAP, Metashape or RealityCapture exports.</p>
+<h3>A splat you already have</h3>
+<p><em>Open splat file (.ply)</em> (<kbd>Ctrl</kbd>+<kbd>O</kbd>) opens a standard Gaussian splat <code>.ply</code>, such as one written by gsplat, Postshot or SuperSplat.</p>
+</section>
+
+<section id="cameras">
+<h2>Finding the cameras</h2>
+<p>Before training, Volsplat must know where each picture was taken from. In the Process tab under <em>Camera positions</em> there are three routes:</p>
+<table>
+<thead><tr><th>Route</th><th>Use it when</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>COLMAP</strong> (accurate, slower)</td><td>Normal photos and video</td><td>The <em>Accuracy</em> setting has three levels. <em>Fast</em> reads photos at 1600 px with a lighter solve (seconds instead of minutes). <em>High</em> works like a photogrammetry tool: more features, matching that rescues weak pairs, and lens distortion solved with the cameras. It takes about twice as long.</td></tr>
+<tr><td><strong>AI guess</strong> (fast)</td><td>You want cameras in one quick pass</td><td>Needs <code>SETUP_AI.bat</code>. A neural network predicts every camera in one pass. You can tick <em>Polish the AI guess with COLMAP</em> for a more precise result a few minutes later.</td></tr>
+<tr><td><strong>Imported cameras + depth</strong> (exact, fastest)</td><td>The pictures are renders from Blender, Houdini, Maya or similar</td><td>Reads <code>transforms.json</code> (nerfstudio, instant-ngp, Blender-NeRF) or a COLMAP text model. Depth maps (such as <code>.exr</code>) are optional but recommended, and let the splats start on the true surface so fewer training steps are needed.</td></tr>
+</tbody>
+</table>
+<p>For computer-made renders with a checkerboard floor or a plain sky, tick <em>CG render: ignore checkerboard floor and sky</em>. A checker floor makes frames match the wrong squares; the mask only affects camera solving, and training still uses the whole picture.</p>
+<p>After the cameras are found, Volsplat works out where the floor is, which way is up, and a real-world size, using the cameras first, then a flat plane, then the shape of the point cloud. <em>Level the floor</em> improves this using the trained splat.</p>
+</section>
+
+<section id="training">
+<h2>Training settings</h2>
+<p>The quickest way to choose is one of four quality levels. Times below were measured or estimated on an RTX 5070 Ti, so yours will differ.</p>
+<table>
+<thead><tr><th>Level</th><th>Steps</th><th>Picture size</th><th>Most splats</th><th>Time</th></tr></thead>
+<tbody>
+<tr><td>Draft</td><td>7,000</td><td>1600 px</td><td>1,000,000</td><td>About 2 minutes (measured). Soft, good for checking the scene.</td></tr>
+<tr><td>Good</td><td>15,000</td><td>1600 px</td><td>1,500,000</td><td>Roughly 5 to 7 minutes (estimate). Crisper.</td></tr>
+<tr><td>Crisp</td><td>30,000</td><td>2048 px</td><td>2,000,000</td><td>About 20 minutes (measured with 45 photos).</td></tr>
+<tr><td>Max</td><td>30,000</td><td>2560 px</td><td>3,000,000</td><td>Roughly 30 to 40 minutes and about 700 MB per scene (estimates). Needs most of a 16 GB card.</td></tr>
+</tbody>
+</table>
+<h3>Other options</h3>
+<ul>
+<li><strong>Method</strong>: MCMC (a capped splat count, the default) or Classic (adaptive splat count).</li>
+<li><strong>Spherical harmonics</strong> (0 to 3): how much view-dependent colour, such as shine and reflections. 0 is plain colour and the smallest; 3 is best.</li>
+<li><strong>Anti-aliasing</strong>: off in every preset. In testing, a long run with anti-aliasing and a large splat cap collapsed, with most splats ending up transparent.</li>
+<li><strong>Photometric compensation</strong>: copes with exposure changes between photos.</li>
+<li><strong>Depth guidance</strong> (on by default): uses depth from the AI or the camera solve to guide training.</li>
+<li><strong>Rolling-shutter compensation</strong> (on by default): lets each frame’s camera settle during training, which helps handheld and phone video.</li>
+<li><strong>Fill holes</strong>: adds new splats where the model left a gap in the surface. Gaps on a real depth edge, such as railings or the space between two objects, are left alone.</li>
+</ul>
+<p>When training ends, <em>Result</em> shows the output. The scan lives in your workspace as a folder containing <code>scene.ply</code>, plus <code>timings.json</code> showing where the time went. <em>Retrain with these settings</em> and <em>Reset field (train from scratch)</em> are in the <em>Radiance field</em> section.</p>
+</section>
+
+<section id="viewing">
+<h2>Looking at and fixing the result</h2>
+<h3>The 3D view</h3>
+<p>Left drag rotates, right or middle drag (or <kbd>Shift</kbd> + left drag) pans, and the wheel zooms. <em>Real splat drawing (GPU)</em> draws true Gaussians; otherwise a fast point preview is used. <em>Hide stray floaters</em>, a ground grid, an axis gizmo and a statistics overlay are in the View menu. <em>View result as real splats (browser)</em> opens the result in a browser viewer.</p>
+<h3>Scene tools</h3>
+<ul>
+<li><strong>Transform</strong>: position, rotation and scale. <em>Bake into data</em> writes it into <code>scene.ply</code>.</li>
+<li><strong>Crop box</strong>: hides everything outside (or inside) a box. Drag a coloured square to push a face in or out, or the white diamond to move the box. The crop changes only what you see and export; the trained data is untouched.</li>
+<li><strong>Optimise now</strong>: removes floaters and tidies (drops transparent, oversized and isolated splats). <em>Tidy automatically after every scan</em> does it for you.</li>
+<li><strong>Undo and redo</strong> cover transforms, the crop box, the up axis and deletions in one timeline.</li>
+</ul>
+<h3>Pick and delete splats</h3>
+<p>Choose <em>Brush</em>, <em>Lasso</em> or <em>Box</em> on the left (or <kbd>B</kbd>, <kbd>L</kbd>, <kbd>M</kbd>). Picked splats turn orange. Press <kbd>Delete</kbd> to delete them. <em>Save</em> writes the edit into <code>scene.ply</code>, and the file before your first saved edit is kept as <code>scene_before_edit.ply</code>. The SuperSplat web editor can also be opened from the Process tab.</p>
+<h3>Lighting</h3>
+<p>A splat has no lights: the colour it was photographed with is baked in, so it cannot be relit afterwards. When you convert a 3D model, the <em>Lighting</em> controls (Light, Turn, Exposure) set the light before the views are made, so the baked result is lit the way you want.</p>
+</section>
+
+<section id="other-inputs">
+<h2>Other ways to make a splat</h2>
+<h3>Single image</h3>
+<p>Needs <code>SETUP_SINGLE_IMAGE.bat</code>. It works in two steps so you can judge the shape before committing: <strong>1. Create 3D model</strong> makes a mesh you can turn in the 3D view; the model guesses the sides it cannot see, and <em>Variation</em> gives a different guess. <strong>2. Convert to Gaussian splat</strong> turns the approved model into a splat. The result is saved as a scan of its own. As an online alternative you can use Meshy with your own API key: Volsplat never holds an account for you, and the key is stored in one local file and masked everywhere it is shown.</p>
+<h3>A 3D model</h3>
+<p><em>Import 3D model</em> opens obj, stl, ply or glb. <em>Convert model to Gaussian splat</em> renders it from a ring of viewpoints whose positions are known exactly, so there is no camera solving to go wrong, then trains with the imported cameras.</p>
+<h3>Near-live splat</h3>
+<p>With cameras attached, Volsplat can rebuild a splat from the newest frames every few seconds <em>without training</em>, using the AI model (needs <code>SETUP_AI.bat</code>). It is rougher than a trained splat but exists seconds after the cameras start. Controls include rounds per second, how many recent frames to keep, a point budget, and <em>AI clean-up + steady map</em>, which removes floaters and edge smear and averages every update into one steady map. <em>Use as project scene</em> keeps what you see.</p>
+</section>
+
+<section id="unreal">
+<h2>Unreal Engine</h2>
+<p>Volsplat ships prebuilt Unreal plugins for <strong>Unreal Engine 5.6, 5.7 and 5.8</strong>: <em>NanoGS</em>, which draws the splat, and <em>VolSplatBridge</em>, which imports what you send. No compiler or Visual Studio is needed.</p>
+<h3>Set up Unreal</h3>
+<p>Choose <em>Set up Unreal Engine</em>. Volsplat finds the Unreal installs on your computer and shows which it can set up. Install into <strong>one project</strong>, or into the <strong>engine</strong> to cover every project of that Unreal version (this may need Volsplat run as administrator).</p>
+<h3>Send a splat</h3>
+<p>Choose <em>Send to Unreal Engine</em>, pick the folder that contains your <code>.uproject</code> file, give the splat a name and press <em>Send</em>. Volsplat stands the scene upright, scales it to metres, converts it to Unreal’s axes and units, and writes it into the project’s <code>SplatScanInbox</code> folder. The bridge plugin imports it as a saved asset, and Volsplat is not needed afterwards.</p>
+<p>Options include: size multiplier, turn about the vertical, stand it on the floor and centre it at the origin, leave out faint splats (less ghosting), the spherical-harmonics degree (0 to 3), a cap on the splat count, brightness, replacing the splat already in the level, and also placing it in the open level.</p>
+<ul>
+<li><strong>Proxy mesh</strong>: a hidden blocky stand-in with the shape of the scan. The splat is still the only thing you see, but the proxy lets it cast a shadow and be clicked in Unreal.</li>
+<li><strong>Relightable</strong>: Unreal cannot light a splat by itself because its colour is baked in. With the separate <em>StarLightGS</em> plugin in your project, Volsplat can add a surface direction to every splat (taken from the model it was made from, so it works for splats converted from a model) so Unreal’s lights can shade it.</li>
+</ul>
+</section>
+
+<section id="export">
+<h2>Exporting</h2>
+<p><em>Export field</em> (<kbd>Ctrl</kbd>+<kbd>E</kbd>) writes a standard 3D Gaussian splat <code>.ply</code> with your transform and crop applied, which other tools that read this format can open. <em>Save 3D view as a picture</em> is <kbd>Ctrl</kbd>+<kbd>P</kbd>. Without a licence these exports are locked; see below.</p>
+</section>
+
+<section id="shortcuts">
+<h2>Mouse and keyboard</h2>
+<table>
+<thead><tr><th>Action</th><th>Keys</th></tr></thead>
+<tbody>
+<tr><td>Rotate the view</td><td>Left drag</td></tr>
+<tr><td>Pan</td><td>Right or middle drag, or <kbd>Shift</kbd> + left drag</td></tr>
+<tr><td>Zoom</td><td>Wheel, or <kbd>+</kbd> / <kbd>-</kbd></td></tr>
+<tr><td>Reset the view</td><td>Double-click, or <kbd>Home</kbd></td></tr>
+<tr><td>Look along an axis</td><td>Click an axis in the gizmo</td></tr>
+<tr><td>Standard views</td><td>Numpad <kbd>1</kbd> front, <kbd>3</kbd> right, <kbd>7</kbd> top, <kbd>9</kbd> back</td></tr>
+<tr><td>Turn the scene (which way is up)</td><td><kbd>E</kbd>; <kbd>Q</kbd> hides the handles</td></tr>
+<tr><td>Show or hide the crop box outline</td><td><kbd>C</kbd></td></tr>
+<tr><td>Undo, redo</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd>; <kbd>Shift</kbd>+<kbd>Z</kbd> or <kbd>Ctrl</kbd>+<kbd>Y</kbd></td></tr>
+<tr><td>New project, import photos, open .ply</td><td><kbd>Ctrl</kbd>+<kbd>N</kbd>, <kbd>Ctrl</kbd>+<kbd>I</kbd>, <kbd>Ctrl</kbd>+<kbd>O</kbd></td></tr>
+<tr><td>Save, save as</td><td><kbd>Ctrl</kbd>+<kbd>S</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td></tr>
+<tr><td>Export, save picture, preferences</td><td><kbd>Ctrl</kbd>+<kbd>E</kbd>, <kbd>Ctrl</kbd>+<kbd>P</kbd>, <kbd>Ctrl</kbd>+<kbd>,</kbd></td></tr>
+<tr><td>Full screen</td><td><kbd>F11</kbd></td></tr>
+<tr><td>Capture a round (cameras on)</td><td><kbd>Space</kbd></td></tr>
+<tr><td>Brush, Lasso, Box select</td><td><kbd>B</kbd>, <kbd>L</kbd>, <kbd>M</kbd>. Shift adds, Ctrl removes, Alt + drag turns the view.</td></tr>
+<tr><td>Delete, invert, select all you see, select nothing</td><td><kbd>Delete</kbd>, <kbd>I</kbd>, <kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Esc</kbd></td></tr>
+<tr><td>Brush smaller, bigger</td><td><kbd>[</kbd>, <kbd>]</kbd></td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="beta">
+<h2>Beta, licences and updates</h2>
+<h3>This beta</h3>
+<p>The beta unlocks every feature until <strong>{EXPIRES}</strong> and needs no licence key and no server. After that date it locks the same features an unlicensed copy locks and tells you where to get the current build. It never deletes anything and never stops you opening your own scans.</p>
+<p>An unlicensed copy locks four things: exporting a <code>.ply</code>, <em>Send to Unreal</em>, saving the 3D view as a picture, and sharing (opening the result in the browser viewer or revealing <code>scene.ply</code>). Everything else, including capture, camera solving, training, viewing and editing, stays available.</p>
+<h3>Licences at launch</h3>
+<p>Planned licences are Indie, Perpetual and Commercial (see the <a href="/volsplat/#pricing">Volsplat page</a>); for now all unlock every feature. You activate a copy with <em>Help &gt; Licence</em> by typing your key. The key is checked once, then the licence is stored on your PC and works offline for up to 30 days; the app renews it quietly in the background when it is a few days old. <em>Deactivate</em> frees the PC slot, for example before moving to a new computer. A licence for a given computer can also be loaded from a file.</p>
+<h3>Updates</h3>
+<p><em>Help &gt; Check for updates</em> asks pixelversefx.com whether a newer version exists. The answer is digitally signed, and the downloaded installer must match a published checksum, so a broken or tampered download is deleted without running. During the beta the update service may not be online yet, in which case the app says it cannot reach the update server. Install new versions from the <a href="/volsplat/#download">download section</a>.</p>
+</section>
+
+<section id="privacy">
+<h2>Privacy and your data</h2>
+<p><em>Help &gt; Privacy and your data</em> lists everything that can leave your PC, and lets you turn off the optional part.</p>
+<table>
+<thead><tr><th>What</th><th>When</th><th>What is sent</th></tr></thead>
+<tbody>
+<tr><td>Anonymous usage note</td><td>Once at install and once a day after that, only if you agreed. You can turn it off.</td><td>App version, release channel, Windows version, processor type, graphics card model, processor cores, memory, interface language (two letters), time-zone offset, days since install, a short fixed event name (such as launch or error) and a random install number made on your PC. The country is worked out from the connection by the server and your address is not stored.</td></tr>
+<tr><td>Licence activation</td><td>Only when you type a key in</td><td>Your licence key, an anonymous id for your PC and your PC’s name, so you can see and free the machines your licence is on.</td></tr>
+<tr><td>Update check</td><td>Only when you check, or at start-up if that is on</td><td>The version you are running.</td></tr>
+</tbody>
+</table>
+<p>Volsplat never sends your name or e-mail address, your scans, photos, models or any file you open, file names or folder paths, your location, your IP address (as stored data), or anything you type into the program. To reset the install number, use the forget option in Preferences or delete the <code>install_id</code> file in your workspace folder.</p>
+<p>The website’s own privacy policy is at <a href="/privacy-policy/">pixelversefx.com/privacy-policy</a>.</p>
+</section>
+
+<section id="notices">
+<h2>Third-party software</h2>
+<p>Volsplat is built on open-source software, and each part keeps its own licence. Shipped inside the Windows program: Python, Tcl/Tk, OpenCV (with FFmpeg for reading video), NumPy, Pillow and the PyInstaller bootloader. Downloaded onto your PC during setup, inside WSL: gsplat, PyTorch, the NVIDIA CUDA Toolkit, COLMAP / pycolmap and their helper packages, and, only if you install them, fused-ssim, MapAnything (Apache-2.0 weights only) and TRELLIS (MIT).</p>
+<p>Models with non-commercial licences are deliberately not used. The full list with licence names and links is in <code>THIRD_PARTY_NOTICES.txt</code>, which sits in your workspace folder and inside the install folder.</p>
+</section>
+
+<section id="help">
+<h2>When something goes wrong</h2>
+<ul>
+<li>Open the <strong>Log</strong> tab: it shows what each stage did. <em>File &gt; Open my SplatScan folder</em> opens the scans, preferences and log on disk.</li>
+<li>If a setup stops with an error, run <em>Help &gt; Set up / repair the 3D engine</em> again, and keep the text from the setup window to send us.</li>
+<li>If training is slow or the card runs out of memory, choose a lower quality level, a smaller picture size, or a lower splat cap.</li>
+<li>A soft result usually means the cameras were slightly off. Try COLMAP with <em>High</em> accuracy, or <em>Polish the AI guess with COLMAP</em>.</li>
+<li>Still stuck? <a href="/contact/?need=volsplat">Contact the studio</a> and tell us your Windows version, graphics card and what the Log tab says.</li>
+</ul>
+</section>

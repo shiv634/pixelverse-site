@@ -16,6 +16,7 @@ BETA = {
     "sha256": "c9f6aacb2e3c5e1a3123ac6ddd272e7ef1f1857e6d359698d832938233de8fd4",
     "expires": "26 November 2026",
     "url": "https://github.com/shiv634/pixelverse-site/raw/main/downloads/VolSpatial-SplatScan-Setup-1.2.0.exe",
+    "docs_pdf": "/assets/docs/Volsplat-Documentation-1.2.0.pdf",
 }
 
 # Paste the hosted-checkout link for each plan here once the provider account is approved.
@@ -185,7 +186,7 @@ if BETA["url"]:
         <div><dt>Works until</dt><dd>{BETA["expires"]}. After that the beta locks exports and asks you to get the current build. Your scans are never touched.</dd></div>
         <div><dt>SHA-256</dt><dd style="word-break:break-all;font-size:14px">{BETA["sha256"]}</dd></div>
       </dl>
-      <div class="actions" style="margin-top:28px"><a class="btn solid" href="{BETA["url"]}" rel="noopener">{RGB}Download for Windows ({BETA["size"]})</a></div>
+      <div class="actions" style="margin-top:28px"><a class="btn solid" href="{BETA["url"]}" rel="noopener">{RGB}Download for Windows ({BETA["size"]})</a><a class="btn" href="{BETA["docs_pdf"]}" download>{RGB}Documentation (PDF)</a><a class="btn" href="/volsplat/docs/">{RGB}Read the documentation</a></div>
       <p class="fine">The installer is not code-signed yet, so Windows may show a SmartScreen warning. Choose More info, then Run anyway. To check your download, run <code>Get-FileHash</code> on the file in PowerShell and compare it with the SHA-256 above. This is a test build: tell us what breaks through the <a href="/contact/?need=volsplat">contact page</a>.</p>
     </div>
   </div>
@@ -196,6 +197,13 @@ else:
     HERO_BTN = f'<a class="btn solid" href="/contact/?need=volsplat">{RGB}Get notified at launch</a>'
     HERO_META = "<span>Coming soon</span>"
     BETA_SECTION = ""
+
+FEATURES_LEDE = ('Volsplat turns photos, video, webcams, renders or a 3D model into a Gaussian splat on your NVIDIA graphics card, lets you clean it up, and exports it to Unreal Engine. <a href="/volsplat/docs/" style="border-bottom:1px solid var(--line-strong)">Read the documentation</a> for the full feature list and system requirements.'
+  if BETA["url"] else "Features and system requirements will be published here when Volsplat launches.")
+
+HERO_SHOT = ('<figure class="shot shot-img"><img src="/assets/img/volsplat-preview.webp" width="1600" height="900" '
+  'alt="A Gaussian splat of a twisted knot in red, green and blue. A round lens on the left shows the outlines of the individual soft ellipses it is built from." fetchpriority="high">'
+  '<figcaption>A Gaussian splat is a 3D scene built from thousands of soft, translucent ellipses. Illustration, not a screenshot of the app.</figcaption></figure>')
 
 volsplat_soon = f"""<section class="page-top product-top">
   <div class="wrap">
@@ -208,7 +216,7 @@ volsplat_soon = f"""<section class="page-top product-top">
       </div>
       <p class="product-meta">{HERO_META}<span>By Pixelverse, Chennai</span></p>
     </div>
-    <div class="shot"><p>Preview coming soon</p></div>
+    {HERO_SHOT}
   </div>
 </section>
 
@@ -217,7 +225,7 @@ volsplat_soon = f"""<section class="page-top product-top">
   <div class="wrap">
     <div class="section-head">
       <h2 class="display">What it does</h2>
-      <p class="lede muted">Features and system requirements will be published here when Volsplat launches.</p>
+      <p class="lede muted">{FEATURES_LEDE}</p>
     </div>
   </div>
 </section>
@@ -255,6 +263,33 @@ volsplat_soon = f"""<section class="page-top product-top">
 page("/volsplat/", "Volsplat – Software by Pixelverse",
      ("Volsplat by Pixelverse: free Windows beta to download, full release coming soon." if BETA["url"] else "Volsplat by Pixelverse: coming soon.") if not SHOP_FULL else "Volsplat by Pixelverse: features, requirements and licences (Indie, Perpetual, Commercial).",
      "software", volsplat if SHOP_FULL else volsplat_soon, ["/assets/js/site.js"])
+
+# ───────────── documentation page (beta) ─────────────
+import re as _re
+if BETA["url"]:
+    _src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "volsplat_docs.html"), encoding="utf-8").read()
+    _src = _src.replace("{VERSION}", BETA["version"]).replace("{EXPIRES}", BETA["expires"])
+    _toc = "".join(f'<li><a href="#{i}">{t}</a></li>' for i, t in _re.findall(r'<section id="([^"]+)">\s*<h2>(.*?)</h2>', _src))
+    _docs = f"""<section class="page-top"><div class="wrap">
+  <div class="section-head"><p class="eyebrow"><a href="/volsplat/">Volsplat</a></p><h1 class="display" style="font-size:clamp(24px,6.2vw,80px)">Documentation</h1>
+    <p class="lede muted">How to install and use Volsplat {BETA["version"]}, the Windows beta. Written from the program itself, so where something is not measured yet, it says so.</p>
+    <div class="actions"><a class="btn solid" href="{BETA["docs_pdf"]}" download>{RGB}Download as PDF</a><a class="btn" href="/volsplat/#download">{RGB}Download the software</a></div></div>
+  <div class="docs-layout">
+    <nav class="docs-toc" aria-label="On this page"><p class="fine">On this page</p><ol>{_toc}</ol></nav>
+    <div class="docs">
+{_src}
+    </div>
+  </div></div></section>"""
+    page("/volsplat/docs/", "Volsplat documentation – Pixelverse",
+         "How to install and use Volsplat, Pixelverse's Gaussian splatting software for Windows: setup, capture and import, training, editing, Unreal Engine export and privacy.",
+         "software", _docs, ["/assets/js/site.js"])
+    # standalone copy for the PDF (rendered by tools/make_docs_pdf.sh)
+    open("/tmp/volsplat_docs_print.html", "w", encoding="utf-8").write(
+        f"""<!doctype html><meta charset="utf-8"><title>Volsplat documentation {BETA["version"]}</title>
+<style>body{{font:11pt/1.5 'Segoe UI',Arial,sans-serif;color:#111;max-width:none}}h1{{font-size:26pt;margin:0 0 4pt}}h2{{font-size:15pt;margin:22pt 0 6pt;border-bottom:1px solid #bbb;padding-bottom:3pt;page-break-after:avoid}}h3{{font-size:12pt;margin:14pt 0 4pt;page-break-after:avoid}}
+table{{border-collapse:collapse;width:100%;margin:8pt 0;font-size:9.5pt}}th,td{{border:1px solid #bbb;padding:4pt 6pt;vertical-align:top;text-align:left}}th{{background:#eee}}tr{{page-break-inside:avoid}}
+code,kbd{{font-family:Consolas,monospace;font-size:.92em;background:#f0f0f0;padding:0 2pt;border:1px solid #ddd;border-radius:2pt}}dl.spec div{{margin:0 0 5pt}}dt{{font-weight:bold}}dd{{margin:0 0 0 14pt}}.sub{{color:#555}}a{{color:#0b4fd6}}</style>
+<h1>Volsplat documentation</h1><p class="sub">Version {BETA["version"]} (Windows beta) · Pixelverse · pixelversefx.com/volsplat/docs/</p>{_src.replace('href="/', 'href="' + ORIGIN + '/')}""")
 
 # ───────────── legal pages for the shop ─────────────
 def legal_page(path, title, desc, h1, body):
@@ -341,6 +376,12 @@ priv2 = privacy.replace("""    <h2>Videos and fonts</h2>""", f"""    <h2>Softwar
     <h2>Videos and fonts</h2>""").replace("Last updated 4 November 2026", f"Last updated {SHOP['updated']}")
 if SHOP_FULL:
     page("/privacy-policy/", "Privacy policy – Pixelverse", "How Pixelverse handles information on this website.", "", priv2, ["/assets/js/site.js"])
+
+if BETA["url"] and not SHOP_FULL:
+    _priv3 = privacy.replace("""    <h2>Videos and fonts</h2>""", """    <h2>The Volsplat beta</h2>
+    <p>The Volsplat beta installer is hosted on GitHub, so GitHub may log your download under its own privacy policy. The program itself asks on first run whether it may send an anonymous usage note: app version, Windows version, graphics card model, processor cores, memory, interface language, time-zone offset, the country the connection came from, and a random number made on your computer. Nothing is sent before you answer, and you can turn it off at any time. It never sends your name, email address, scans, photos, file names, folder paths, location or anything you type. Checking for updates sends the version you run, and activating a licence sends your key, an anonymous computer id and the computer’s name. The full list is in the program under Help, Privacy and your data, and in the <a href="/volsplat/docs/#privacy">documentation</a>.</p>
+    <h2>Videos and fonts</h2>""").replace("Last updated 4 November 2026", "Last updated 22 November 2026")
+    page("/privacy-policy/", "Privacy policy – Pixelverse", "How Pixelverse handles information on this website.", "", _priv3, ["/assets/js/site.js"])
 
 if PLACEHOLDERS and SHOP_FULL:
     print(f"\n!! {len(PLACEHOLDERS)} Volsplat placeholders still on /volsplat/ (fill before going live):")

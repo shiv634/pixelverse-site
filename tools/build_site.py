@@ -10,7 +10,7 @@ SHOP_MODE = os.environ.get("SHOP_LIVE", "0")
 SHOP_LIVE = SHOP_MODE in ("1", "soon")
 SHOP_FULL = SHOP_MODE == "1"
 ORIGIN = "https://www.pixelversefx.com"
-VER = "5"  # bump on every deploy to bust cached CSS/JS
+VER = "6"  # bump on every deploy to bust cached CSS/JS
 EMAIL = "pixelverse.va@gmail.com"
 PHONE_DISPLAY = "85906 33822"
 PHONE_TEL = "+918590633822"
@@ -434,7 +434,7 @@ open(os.path.join(ROOT, "assets/img/favicon.svg"), "w").write(
  '<rect x="15" y="12" width="12" height="12" fill="#4073ff" style="mix-blend-mode:screen"/></svg>')
 open(os.path.join(ROOT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {ORIGIN}/sitemap.xml\n")
 urls = ["/", "/portfolio/", "/about/", "/contact/", "/privacy-policy/", "/accessibility-statement/"]
-if SHOP_LIVE: urls[4:4] = ["/volsplat/"]
+if SHOP_LIVE: urls[4:4] = ["/volsplat/", "/volsplat/docs/"]
 if SHOP_FULL: urls[5:5] = ["/legal/volsplat-eula/", "/legal/terms-of-sale/", "/legal/refund-policy/"]
 open(os.path.join(ROOT, "sitemap.xml"), "w").write(
  '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
