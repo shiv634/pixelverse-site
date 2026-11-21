@@ -6,6 +6,18 @@ SHOP = {
     "updated": "9 November 2026",
 }
 
+# Beta download shown on the coming-soon page. Empty "url" hides the download section and goes back to "coming soon".
+# To publish a new beta: put the installer in downloads/, then update version, size, sha256, expires and url.
+BETA = {
+    "name": "Volsplat beta",
+    "version": "1.2.0",
+    "file": "VolSpatial-SplatScan-Setup-1.2.0.exe",
+    "size": "57 MB",
+    "sha256": "c9f6aacb2e3c5e1a3123ac6ddd272e7ef1f1857e6d359698d832938233de8fd4",
+    "expires": "26 November 2026",
+    "url": "https://github.com/shiv634/pixelverse-site/raw/main/downloads/VolSpatial-SplatScan-Setup-1.2.0.exe",
+}
+
 # Paste the hosted-checkout link for each plan here once the provider account is approved.
 # Empty string = the button shows "Get notified" and goes to the contact form instead of a dead "Buy now".
 CHECKOUT = {
@@ -157,26 +169,55 @@ volsplat = f"""<section class="page-top product-top">
 SOON_FAQ = [q for q in FAQ if q[0] not in ("Is there a free trial?", "Can I get a refund?", "Who handles payment?")]
 soon_faq_html = "\n".join(f'      <details><summary>{q}</summary><p>{a}</p></details>' for q, a in SOON_FAQ)
 
+if BETA["url"]:
+    HERO_LEDE = "New software from Pixelverse. The beta is free to try on Windows."
+    HERO_BTN = f'<a class="btn solid" href="#download">{RGB}Download the beta</a>'
+    HERO_META = f'<span>Beta {BETA["version"]}</span><span>Windows</span>'
+    BETA_SECTION = f"""<section class="section tight" id="download">
+  <div class="wrap split">
+    <div class="lead"><div class="lead-inner"><h2 class="display">Download the beta</h2>
+      <p class="lede muted">Every feature is unlocked and no licence key is needed. It works until {BETA["expires"]}.</p></div></div>
+    <div class="list">
+      <dl class="spec">
+        <div><dt>Version</dt><dd>{BETA["name"]} {BETA["version"]}</dd></div>
+        <div><dt>For</dt><dd>Windows, 64-bit</dd></div>
+        <div><dt>File</dt><dd>{BETA["file"]} ({BETA["size"]})</dd></div>
+        <div><dt>Works until</dt><dd>{BETA["expires"]}. After that the beta locks exports and asks you to get the current build. Your scans are never touched.</dd></div>
+        <div><dt>SHA-256</dt><dd style="word-break:break-all;font-size:14px">{BETA["sha256"]}</dd></div>
+      </dl>
+      <div class="actions" style="margin-top:28px"><a class="btn solid" href="{BETA["url"]}" rel="noopener">{RGB}Download for Windows ({BETA["size"]})</a></div>
+      <p class="fine">The installer is not code-signed yet, so Windows may show a SmartScreen warning. Choose More info, then Run anyway. To check your download, run <code>Get-FileHash</code> on the file in PowerShell and compare it with the SHA-256 above. This is a test build: tell us what breaks through the <a href="/contact/?need=volsplat">contact page</a>.</p>
+    </div>
+  </div>
+</section>
+"""
+else:
+    HERO_LEDE = "New software from Pixelverse. Details and downloads arrive at launch."
+    HERO_BTN = f'<a class="btn solid" href="/contact/?need=volsplat">{RGB}Get notified at launch</a>'
+    HERO_META = "<span>Coming soon</span>"
+    BETA_SECTION = ""
+
 volsplat_soon = f"""<section class="page-top product-top">
   <div class="wrap">
     <div class="section-head">
       <h1 class="display">Volsplat</h1>
-      <p class="lede">New software from Pixelverse. Details and downloads arrive at launch.</p>
+      <p class="lede">{HERO_LEDE}</p>
       <div class="actions">
-        <a class="btn solid" href="/contact/?need=volsplat">{RGB}Get notified at launch</a>
+        {HERO_BTN}
         <a class="btn" href="/contact/?need=volsplat">{RGB}Contact the studio</a>
       </div>
-      <p class="product-meta"><span>Coming soon</span><span>By Pixelverse, Chennai</span></p>
+      <p class="product-meta">{HERO_META}<span>By Pixelverse, Chennai</span></p>
     </div>
     <div class="shot"><p>Preview coming soon</p></div>
   </div>
 </section>
 
+{BETA_SECTION}
 <section class="section tight" id="features">
   <div class="wrap">
     <div class="section-head">
       <h2 class="display">What it does</h2>
-      <p class="lede muted">Features, system requirements and downloads will be published here when Volsplat launches.</p>
+      <p class="lede muted">Features and system requirements will be published here when Volsplat launches.</p>
     </div>
   </div>
 </section>
@@ -212,7 +253,7 @@ volsplat_soon = f"""<section class="page-top product-top">
 </section>"""
 
 page("/volsplat/", "Volsplat – Software by Pixelverse",
-     "Volsplat by Pixelverse: coming soon." if not SHOP_FULL else "Volsplat by Pixelverse: features, requirements and licences (Indie, Perpetual, Commercial).",
+     ("Volsplat by Pixelverse: free Windows beta to download, full release coming soon." if BETA["url"] else "Volsplat by Pixelverse: coming soon.") if not SHOP_FULL else "Volsplat by Pixelverse: features, requirements and licences (Indie, Perpetual, Commercial).",
      "software", volsplat if SHOP_FULL else volsplat_soon, ["/assets/js/site.js"])
 
 # ───────────── legal pages for the shop ─────────────

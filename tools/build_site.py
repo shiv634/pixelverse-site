@@ -10,7 +10,7 @@ SHOP_MODE = os.environ.get("SHOP_LIVE", "0")
 SHOP_LIVE = SHOP_MODE in ("1", "soon")
 SHOP_FULL = SHOP_MODE == "1"
 ORIGIN = "https://www.pixelversefx.com"
-VER = "4"  # bump on every deploy to bust cached CSS/JS
+VER = "5"  # bump on every deploy to bust cached CSS/JS
 EMAIL = "pixelverse.va@gmail.com"
 PHONE_DISPLAY = "85906 33822"
 PHONE_TEL = "+918590633822"
