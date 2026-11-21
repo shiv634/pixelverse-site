@@ -333,9 +333,9 @@ form.pv{display:grid;gap:22px}
 .faq details p a{border-bottom:1px solid var(--line-strong)}
 mark.ph{background:none;color:var(--phosphor);outline:1px dashed var(--line-strong);outline-offset:2px;border-radius:2px;padding:0 3px}
 /* Volsplat preview image + documentation page */
-.shot-img{padding:0;display:block;background:#05060b;overflow:hidden;margin:0}
-.shot-img img{display:block;width:100%;height:auto}
-.shot-img figcaption{padding:10px 16px;font-size:13px;color:var(--faint);border-top:1px solid var(--line)}
+.shot-img{padding:0;display:block;background:none;border:0;aspect-ratio:auto;overflow:hidden;margin:0;text-align:center}
+.shot-img img{display:block;width:100%;max-width:1200px;height:auto;margin:0 auto}
+.shot-img figcaption{padding:10px 16px;font-size:13px;color:var(--faint)}
 .docs-layout{display:grid;grid-template-columns:220px minmax(0,72ch);gap:48px;margin-top:56px;align-items:start}
 .docs-toc{position:sticky;top:96px}
 .docs-toc ol{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px;font-size:14px}

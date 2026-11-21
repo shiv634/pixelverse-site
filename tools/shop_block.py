@@ -201,9 +201,9 @@ else:
 FEATURES_LEDE = ('Volsplat turns photos, video, webcams, renders or a 3D model into a Gaussian splat on your NVIDIA graphics card, lets you clean it up, and exports it to Unreal Engine. <a href="/volsplat/docs/" style="border-bottom:1px solid var(--line-strong)">Read the documentation</a> for the full feature list and system requirements.'
   if BETA["url"] else "Features and system requirements will be published here when Volsplat launches.")
 
-HERO_SHOT = ('<figure class="shot shot-img"><img src="/assets/img/volsplat-preview.webp" width="1600" height="900" '
-  'alt="A Gaussian splat of a twisted knot in red, green and blue. A round lens on the left shows the outlines of the individual soft ellipses it is built from." fetchpriority="high">'
-  '<figcaption>A Gaussian splat is a 3D scene built from thousands of soft, translucent ellipses. Illustration, not a screenshot of the app.</figcaption></figure>')
+HERO_SHOT = ('<figure class="shot shot-img"><img src="/assets/img/volsplat-preview.webp" width="1596" height="887" '
+  'alt="A domed, classical building shown half as a photograph and half as a glowing blue cloud of tiny particles, circled by bright orbit rings and small spheres." fetchpriority="high">'
+  '<figcaption>Gaussian splatting turns real places into 3D scenes built from thousands of soft points. Illustration, not a screenshot of the app.</figcaption></figure>')
 
 volsplat_soon = f"""<section class="page-top product-top">
   <div class="wrap">
